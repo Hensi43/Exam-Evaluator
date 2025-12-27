@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+python-multipart
+google-generativeai
+pytest
+sqlmodel
+passlib[bcrypt]
+python-jose[cryptography]
+python-multipart
