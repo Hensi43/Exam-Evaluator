@@ -7,13 +7,41 @@
 
 ## 📚 DOCUMENTATION
 
-We follow a systematic documentation approach. Please refer to the relevant files below:
+We follow a systematic documentation approach.
 
--   [**📐 ARCHITECTURE DESIGN**](./ARCHITECTURE_DESIGN.md) - System overview, diagrams, and tech stack.
--   [**⚡ QUICK START**](./QUICK_START.md) - How to run the project locally.
--   [**✅ FEATURE INVENTORY**](./FEATURE_INVENTORY.md) - Checklist of current and planned features.
--   [**🧪 TESTING GUIDE**](./TESTING_GUIDE.md) - Manual and automated testing strategies.
--   [**🔧 BACKEND INSTALL CHECK**](./BACKEND_INSTALL_FIX.md) - Troubleshooting backend setup.
+### 1. [📐 ARCHITECTURE DESIGN](./ARCHITECTURE_DESIGN.md)
+> **System Overview**: Mobile Client (Expo) <-> Python API (FastAPI) <-> SQLite DB & Gemini AI.
+
+```mermaid
+graph TD
+    User((📱 User)) -->|UI| Mobile[Mobile App]
+    Mobile -->|JSON| API[FastAPI Backend]
+    API <-->|SQL| DB[(SQLite)]
+    API <-->|Vision| AI[Gemini Agent]
+```
+
+### 2. [⚡ QUICK START](./QUICK_START.md)
+**Backend**:
+```bash
+source .venv/bin/activate && pip install -r apps/api/requirements.txt
+python -m uvicorn apps.api.main:app --host 0.0.0.0 --port 8000 --reload
+```
+**Frontend**:
+```bash
+cd apps/mobile && npm install
+npx expo start
+```
+
+### 3. [✅ FEATURE INVENTORY](./FEATURE_INVENTORY.md)
+- [x] **Monorepo Structure** (Expo + FastAPI)
+- [x] **Backend Core** (Auth, DB, Models)
+- [ ] **Frontend Auth** (Login Screens)
+- [ ] **AI Grading** (Gemini Integration)
+
+### 4. [🧪 TESTING GUIDE](./TESTING_GUIDE.md)
+- **Automated**: `pytest apps/api/tests/`
+- **Manual**: Register via Swagger UI, then Login via App.
+
 
 ## 🚀 OVERVIEW
 
