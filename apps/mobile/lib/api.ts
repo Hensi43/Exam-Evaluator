@@ -54,6 +54,10 @@ export const AssessmentsService = {
 
     create: async (token: string, data: { title: string, classroom_id: number, rubric_id?: number | null }) => {
         return api.post('/assessments/', data, token);
+    },
+
+    setReference: async (token: string, assessmentId: number, examId: number) => {
+        return api.put(`/assessments/${assessmentId}/reference`, { reference_exam_id: examId }, token);
     }
 };
 

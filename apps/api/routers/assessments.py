@@ -89,3 +89,32 @@ def get_assessment_exams(
         .limit(limit)
     ).all()
     return exams
+
+class ReferenceUpdate(BaseModel):
+    reference_exam_id: int
+
+@router.put("/{id}/reference")
+def set_reference_exam(
+    id: int,
+    ref_update: ReferenceUpdate,
+    current_user: Annotated[User, Depends(get_current_user)],
+    session: Session = Depends(get_session)
+):
+    """Set the reference exam (Golden Answer) for this assessment"""
+    assessment = session.get(Assessment, id)
+    if not assessment:
+        raise HTTPException(status_code=404, detail="Assessment not found")
+        
+    classroom = session.get(Classroom, assessment.classroom_id)
+    if classroom.teacher_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+        
+    # Verify exam belongs to assessment
+    exam = session.get(Exam, ref_update.reference_exam_id)
+    if not exam or exam.assessment_id != id:
+         raise HTTPException(status_code=400, detail="Invalid reference exam")
+
+    assessment.reference_exam_id = ref_update.reference_exam_id
+    session.add(assessment)
+    session.commit()
+    return {"status": "success", "reference_exam_id": ref_update.reference_exam_id}

@@ -39,41 +39,52 @@ async def upload_scan(
 
         # 3. Fetch Rubric & Configuration
         rubric_dict = {}
+        reference_context = None
+
         if assessment_id:
             assessment = session.get(Assessment, assessment_id)
-            if assessment and assessment.rubric_id:
-                rubric = session.get(Rubric, assessment.rubric_id)
-                if rubric:
-                    rubric_dict = {
-                        "title": rubric.title,
-                        "criteria": rubric.criteria, # JSON string
-                        "handwriting_weight": rubric.handwriting_weight
-                    }
-        
+            if assessment:
+                # Get Rubric
+                if assessment.rubric_id:
+                    rubric = session.get(Rubric, assessment.rubric_id)
+                    if rubric:
+                        rubric_dict = {
+                            "title": rubric.title,
+                            "criteria": rubric.criteria, # JSON string
+                            "handwriting_weight": rubric.handwriting_weight
+                        }
+
+                # Get Reference Exam (Golden Key)
+                if assessment.reference_exam_id:
+                    ref_exam = session.get(Exam, assessment.reference_exam_id)
+                    if ref_exam and ref_exam.ocr_content:
+                        reference_context = ref_exam.ocr_content
+
         # 4. AI Grading
-        # Note: In a real app, strict error handling if no rubric found implies we can't grade.
-        # For now, we'll proceed if we have a rubric, otherwise skip grading or use default.
-        
         grading_result = {}
         if rubric_dict:
-            # We need an API key. In MVP, let's grab it from env or assume configured.
-            # Ideally passed from client or stored in specific config.
             import os
             api_key = os.getenv("GEMINI_API_KEY") 
             if api_key:
                 from apps.api.agents.scoring_agent import ScoringAgent
-                scorer = ScoringAgent() # Use fresh instance or global
-                grading_result = scorer.evaluate_submission(student_response, rubric_dict, api_key=api_key)
+                scorer = ScoringAgent()
+                grading_result = scorer.evaluate_submission(
+                    student_response, 
+                    rubric_dict, 
+                    api_key=api_key, 
+                    reference_context=reference_context
+                )
         
         # 5. Save Record
         exam = Exam(
             title=f"Scan {submission_id[:8]}",
             image_url="s3_or_local_path_placeholder", # We aren't saving image file in this MVP step
+            ocr_content=student_response, # Save the raw text for future reference!
             feedback=grading_result.get("feedback", "Pending evaluation"),
             score=grading_result.get("final_score", 0),
             content_score=grading_result.get("content_score", 0),
             handwriting_score=grading_result.get("handwriting_score", 0),
-            user_id=None, # TBD: Authenticated user uploading
+            user_id=None, 
             student_id=student_id,
             assessment_id=assessment_id,
             classroom_id=assessment.classroom_id if assessment_id and assessment else None

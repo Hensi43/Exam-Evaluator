@@ -1,7 +1,10 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
 from apps.api.database import create_db_and_tables
+
+load_dotenv()
 from apps.api.routers import auth, scan, rubric, evaluate, classes, assessments, rubrics as rubric_router
 
 @asynccontextmanager

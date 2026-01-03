@@ -6,7 +6,7 @@ class ScoringAgent:
     def __init__(self):
         pass
 
-    def evaluate_submission(self, student_response: str, rubric: Dict[str, Any], api_key: str = None) -> Dict[str, Any]:
+    def evaluate_submission(self, student_response: str, rubric: Dict[str, Any], api_key: str = None, reference_context: str = None) -> Dict[str, Any]:
         """
         Evaluates a student submission against a weighted rubric using Gemini.
         rubric: {
@@ -14,6 +14,7 @@ class ScoringAgent:
             "criteria": [{"description": str, "weight": float}],
             "handwriting_weight": float
         }
+        reference_context: Optional string containing a perfect answer or answer key.
         """
         if not api_key:
              raise ValueError("API Key is required/configured for real AI processing.")
@@ -33,11 +34,21 @@ class ScoringAgent:
         criteria_text = "\n".join([f"- {c.get('description', 'Criterion')} (Weight: {c.get('weight', 0)}%)" for c in criteria_list])
         handwriting_weight = float(rubric.get('handwriting_weight', 0))
 
+        reference_section = ""
+        if reference_context:
+            reference_section = f"""
+            **REFERENCE / ANSWER KEY:**
+            This is a correct/perfect answer. Use this to judge the student's accuracy strictly.
+            "{reference_context}"
+            """
+
         prompt = f"""
         You are an expert strict exam grader. 
         
         **Rubric Criteria:**
         {criteria_text}
+
+        {reference_section}
         
         **Handwriting Policy:**
         - Evaluate the handwriting legibility on a scale of 0-100.
@@ -51,7 +62,7 @@ class ScoringAgent:
         2. Calculate 'content_score' (0-100) as the weighted average of the individual criterion scores.
         3. Evaluate 'handwriting_score' (0-100) based on legibility and neatness.
         4. Provide specific, constructive feedback explaining the score.
-
+        
         **Output JSON Format ONLY:**
         {{
             "content_score": <int 0-100>,

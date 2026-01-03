@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '../../../../lib/auth';
-import { ExamsService } from '../../../../lib/api';
+import { ExamsService, AssessmentsService } from '../../../../lib/api';
 
 export default function AssessmentDetail() {
     const { id, assessmentId } = useLocalSearchParams(); // id is classId
@@ -15,6 +15,17 @@ export default function AssessmentDetail() {
     const [isLoading, setIsLoading] = useState(true);
 
     const assessmentTitle = "Assessment Results";
+
+    const handleSetReference = async (examId: number) => {
+        if (!token || !assessmentId) return;
+        try {
+            await AssessmentsService.setReference(token, Number(assessmentId), examId);
+            alert("Reference Set! Future scans will use this paper as the answer key.");
+            // Ideally reload or update local state to show visual indicator
+        } catch (e: any) {
+            alert(e.message || "Failed to set reference");
+        }
+    };
 
     const loadData = useCallback(async () => {
         if (!token || !assessmentId) return;
@@ -68,23 +79,33 @@ export default function AssessmentDetail() {
                 ) : (
                     <View className="p-4 gap-3">
                         {exams.map((exam) => (
-                            <View key={exam.id} className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex-row justify-between items-center">
-                                <View className="flex-1">
-                                    <Text className="font-bold text-gray-900 text-lg">
-                                        {exam.title || `Submission #${exam.id}`}
-                                    </Text>
-                                    <Text className="text-gray-500 text-xs">
-                                        Student ID: {exam.student_id ? exam.student_id : 'Unknown'}
-                                    </Text>
+                            <View key={exam.id} className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                                <View className="flex-row justify-between items-center mb-2">
+                                    <View className="flex-1">
+                                        <Text className="font-bold text-gray-900 text-lg">
+                                            {exam.title || `Submission #${exam.id}`}
+                                        </Text>
+                                        <Text className="text-gray-500 text-xs">
+                                            Student ID: {exam.student_id ? exam.student_id : 'Unknown'}
+                                        </Text>
+                                    </View>
+                                    <View className="items-end">
+                                        <Text className={`font-bold text-xl ${exam.score >= 90 ? 'text-green-600' : exam.score >= 70 ? 'text-blue-600' : 'text-orange-600'}`}>
+                                            {exam.score}%
+                                        </Text>
+                                    </View>
+                                </View>
+
+                                <View className="flex-row justify-between items-center pt-2 border-t border-gray-50">
                                     <Text className="text-gray-400 text-xs">
                                         {new Date(exam.created_at).toLocaleString()}
                                     </Text>
-                                </View>
-                                <View className="items-end">
-                                    <Text className={`font-bold text-xl ${exam.score >= 90 ? 'text-green-600' : exam.score >= 70 ? 'text-blue-600' : 'text-orange-600'}`}>
-                                        {exam.score}%
-                                    </Text>
-                                    <Text className="text-xs text-gray-400">Score</Text>
+                                    <TouchableOpacity
+                                        onPress={() => handleSetReference(exam.id)}
+                                        className="bg-gray-100 px-3 py-1 rounded-full"
+                                    >
+                                        <Text className="text-xs font-semibold text-gray-600">Set as Answer Key</Text>
+                                    </TouchableOpacity>
                                 </View>
                             </View>
                         ))}

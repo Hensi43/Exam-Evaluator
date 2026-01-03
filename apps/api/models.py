@@ -46,11 +46,13 @@ class Assessment(SQLModel, table=True):
     date: datetime = Field(default_factory=datetime.utcnow)
     classroom_id: int = Field(foreign_key="classroom.id")
     rubric_id: Optional[int] = Field(default=None, foreign_key="rubric.id")
+    reference_exam_id: Optional[int] = Field(default=None, foreign_key="exam.id") # The "Golden Answer"
 
 class Exam(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     title: str
     image_url: str
+    ocr_content: Optional[str] = Field(default=None) # Raw text extracted
     feedback: str
     score: int
     content_score: int = Field(default=0)

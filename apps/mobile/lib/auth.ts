@@ -96,5 +96,22 @@ export const api = {
         } catch (error: any) {
             throw new Error(error.message || 'Network Error');
         }
+    },
+    put: async (endpoint: string, body: any, token: string) => {
+        try {
+            const response = await fetch(`${API_URL}${endpoint}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify(body),
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.detail || 'API Error');
+            return data;
+        } catch (error: any) {
+            throw new Error(error.message || 'Network Error');
+        }
     }
 };
