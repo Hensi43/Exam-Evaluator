@@ -134,7 +134,12 @@ export default function ClassDetail() {
 
                 {/* Student List */}
                 <View className="px-6 pb-24">
-                    <Text className="text-lg font-bold text-gray-900 mb-4">Students</Text>
+                    <View className="flex-row justify-between items-center mb-4">
+                        <Text className="text-lg font-bold text-gray-900">Students</Text>
+                        <TouchableOpacity onPress={() => router.push(`/class/${id}/students/add`)}>
+                            <Text className="text-blue-600 font-semibold text-sm">+ Add Student</Text>
+                        </TouchableOpacity>
+                    </View>
                     {students.length === 0 ? (
                         <View className="p-4 bg-white rounded-2xl border border-gray-100 items-center">
                             <Text className="text-gray-400">No students enrolled</Text>

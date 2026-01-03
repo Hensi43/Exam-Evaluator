@@ -40,6 +40,10 @@ export const ClassesService = {
 
     getStudents: async (token: string, classId: number): Promise<Student[]> => {
         return api.get(`/classes/${classId}/students`, token);
+    },
+
+    addStudent: async (token: string, classId: number, data: { name: string, roll_number: string }) => {
+        return api.post(`/classes/${classId}/students`, data, token);
     }
 };
 
