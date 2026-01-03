@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Header
 from pydantic import BaseModel
-from agents.rubric_agent import RubricAgent
+from apps.api.agents.rubric_agent import RubricAgent
 from typing import Optional
 
 class RubricRequest(BaseModel):

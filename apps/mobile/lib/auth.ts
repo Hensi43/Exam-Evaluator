@@ -1,8 +1,8 @@
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Platform } from 'react-native';
+import { AppConfig } from './config';
 
-const API_URL = Platform.OS === 'android' ? 'http://10.0.2.2:8000' : 'http://localhost:8000';
+const API_URL = AppConfig.apiUrl;
 
 interface User {
     email: string;
@@ -48,13 +48,31 @@ export const useAuth = create<AuthState>((set) => ({
 }));
 
 export const api = {
-    post: async (endpoint: string, body: any) => {
+    login: async (formData: FormData) => {
         try {
+            const response = await fetch(`${API_URL}/auth/token`, {
+                method: 'POST',
+                body: formData,
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.detail || 'Login failed');
+            return data;
+        } catch (error: any) {
+            throw new Error(error.message || 'Network Error');
+        }
+    },
+    post: async (endpoint: string, body: any, token?: string) => {
+        try {
+            const headers: any = {
+                'Content-Type': 'application/json',
+            };
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
             const response = await fetch(`${API_URL}${endpoint}`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers,
                 body: JSON.stringify(body),
             });
             const data = await response.json();

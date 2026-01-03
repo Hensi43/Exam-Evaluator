@@ -7,12 +7,14 @@ interface InputProps extends TextInputProps {
     label?: string;
     error?: string;
     className?: string;
+    icon?: React.ReactNode;
 }
 
 export const Input = forwardRef<TextInput, InputProps>(({
     label,
     error,
     className,
+    icon,
     ...props
 }, ref) => {
     return (
@@ -22,15 +24,22 @@ export const Input = forwardRef<TextInput, InputProps>(({
                     {label}
                 </Text>
             )}
-            <TextInput
-                ref={ref}
-                placeholderTextColor="#9CA3AF"
-                className={clsx(
-                    "h-12 w-full rounded-xl border px-4 bg-white text-gray-900 text-base",
-                    error ? "border-red-500" : "border-gray-200 focus:border-blue-500"
+            <View className={clsx(
+                "flex-row items-center h-12 w-full rounded-xl border bg-white px-3 relative z-10", // z-10 to ensure it's above other elements if needed
+                error ? "border-red-500" : "border-gray-200 focus:border-blue-500"
+            )}>
+                {icon && (
+                    <View className="mr-3">
+                        {icon}
+                    </View>
                 )}
-                {...props}
-            />
+                <TextInput
+                    ref={ref}
+                    placeholderTextColor="#9CA3AF"
+                    className="flex-1 text-gray-900 text-base h-full"
+                    {...props}
+                />
+            </View>
             {error && (
                 <Text className="mt-1 ml-1 text-xs text-red-500 font-medium">
                     {error}

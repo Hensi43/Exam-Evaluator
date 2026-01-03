@@ -1,9 +1,9 @@
 from fastapi import APIRouter, HTTPException, Header
 from pydantic import BaseModel
 from typing import Dict, List, Any, Optional
-from agents.scoring_agent import ScoringAgent
+from apps.api.agents.scoring_agent import ScoringAgent
 # Import the in-memory store from scan router
-from routers.scan import submissions
+from apps.api.routers.scan import submissions
 
 class EvaluationRequest(BaseModel):
     rubric: Dict[str, Any]

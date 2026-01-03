@@ -12,3 +12,5 @@ requests
 opencv-python-headless
 numpy
 httpx
+pytesseract
+Pillow
